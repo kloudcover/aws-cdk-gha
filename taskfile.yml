@@ -1,0 +1,25 @@
+version: "3"
+vars:
+  GITHUB_REPOSITORY: "kloudcover/aws-cdk-gha"
+tasks:
+  build:
+    desc: Build the Docker image
+    cmds:
+      - docker build -t ghcr.io/{{.GITHUB_REPOSITORY}}:latest .
+
+  test-local:
+    desc: Test the Docker image
+    deps: [build]
+    cmds:
+      - |
+        docker run --rm \
+          -v ~/.aws:/root/.aws \
+          -v ${PWD}/infra:/github/workspace \
+          ghcr.io/{{.GITHUB_REPOSITORY}}:latest diff
+
+  push-local:
+    desc: Push Docker image to GitHub Container Registry
+    deps: [test-local]
+    cmds:
+      - echo "${GITHUB_TOKEN}" | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+      - docker push ghcr.io/{{.GITHUB_REPOSITORY}}:latest

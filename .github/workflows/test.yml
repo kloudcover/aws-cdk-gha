@@ -1,0 +1,30 @@
+name: Test CDK Deploy Action
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-diff:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/kloudcover/aws-cdk-gha:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: login to aws 
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::601394826940:role/kloudcover-gha
+          role-session-name: gha
+          aws-region: us-west-2
+
+
+    #   - name: Test CDK Diff
+    #     uses: ./
+    #     with:
+    #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #       aws-region: us-east-1
+    #       stack-name: test-stack
+    #       command: diff

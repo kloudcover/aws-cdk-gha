@@ -1,0 +1,31 @@
+name: "CDK Deploy Action"
+description: "Synthesize, diff and deploy CDK stacks using a custom Docker container"
+inputs:
+  aws-access-key-id:
+    description: "AWS Access Key ID"
+    required: true
+  aws-secret-access-key:
+    description: "AWS Secret Access Key"
+    required: true
+  aws-region:
+    description: "AWS Region"
+    required: true
+    default: "us-east-1"
+  stack-name:
+    description: "Name of the CDK stack to deploy"
+    required: true
+  command:
+    description: "CDK command to run (synth, diff, or deploy)"
+    required: true
+    default: "deploy"
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        docker run --rm \
+          -e AWS_ACCESS_KEY_ID=${inputs.aws-access-key-id} \
+          -e AWS_SECRET_ACCESS_KEY=${inputs.aws-secret-access-key} \
+          -e AWS_DEFAULT_REGION=${inputs.aws-region} \
+          -v ${PWD}/infra:/github/workspace \
+          ghcr.io/kloudcover/aws-cdk-gha:latest ${inputs.command}
