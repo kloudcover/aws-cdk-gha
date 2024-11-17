@@ -5,7 +5,8 @@ tasks:
   build:
     desc: Build the Docker image
     cmds:
-      - docker build -t ghcr.io/{{.GITHUB_REPOSITORY}}:latest .
+      - docker buildx create --use --name multi-platform-builder || true
+      - docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/{{.GITHUB_REPOSITORY}}:latest --push .
 
   test-local:
     desc: Test the Docker image
